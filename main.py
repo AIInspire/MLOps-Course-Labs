@@ -1,17 +1,10 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-import mlflow.pyfunc
 import joblib
+from prometheus_fastapi_instrumentator import Instrumentator
 
+app = FastAPI(title="Churn Prediction API with Prometheus")
 
-app = FastAPI(title="Bank Customer Churn Prediction API")
-
-#model_name = "bank_churn_model"  
-#model_stage = "Production"
-
-#model = mlflow.pyfunc.load_model(model_uri=f"models:/{model_name}/{model_stage}")
-
-# Define the input schema
 model = joblib.load("model.pkl")
 
 class CustomerData(BaseModel):
@@ -36,7 +29,19 @@ def health_check():
 
 @app.post("/predict")
 def predict(data: CustomerData):
-    input_df = data.dict()
-    input_df = [input_df]  
+    input_df = [data.dict()]
     prediction = model.predict(input_df)
     return {"prediction": int(prediction[0])}
+
+# Prometheus metrics
+Instrumentator().instrument(app).expose(app)
+
+"""
+🎯 Why These Metrics?
+We used prometheus-fastapi-instrumentator to monitor:
+
+1. Request Count: How many times each endpoint is hit.
+2. Request Latency: How long requests take. Crucial for spotting bottlenecks.
+3. Status Codes: To track errors (e.g., 500, 404).
+4. Model Prediction Endpoint Metrics: To ensure predictions stay performant under load.
+"""
