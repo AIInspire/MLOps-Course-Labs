@@ -1,4 +1,4 @@
-name: CI/CD --- Deployment Pipeline for FastAPI Churn Prediction
+name: CI/CD -- Deployment Pipeline for FastAPI Churn Prediction
 
 on:
   push:
