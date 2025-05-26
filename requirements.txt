@@ -35,3 +35,4 @@ wheel==0.45.1
 fastapi
 uvicorn
 pytest
+httpx
